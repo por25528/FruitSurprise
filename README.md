@@ -2,8 +2,6 @@
 
 Description
 
-Here’s a polished version of your description:
-
 Fruit Surprise is a web application designed for users who are curious about the culinary possibilities of fruits. It allows users to upload images of fruits and provides dish suggestions based on the detected ingredients. Whether you're looking to create delicious desserts or explore new dishes, Fruit Surprise helps you discover what you can make with the fruits at hand.
 
 Note
