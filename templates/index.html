@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Surprise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff6347;
+        }
+        .upload-section {
+            margin: 20px auto;
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #image-preview {
+            padding-top: 1rem;
+            margin-left: auto;
+            margin-right: auto;
+            display: none;
+            max-width: 100%;
+            border: 2px solid #ff6347;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .button-62 {
+            background: linear-gradient(to bottom right, #EF4765, #FF9A5A);
+            border: 0;
+            border-radius: 12px;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: inline-block;
+            font-family: -apple-system,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 2.5;
+            padding: 0 1rem;
+            text-align: center;
+            text-decoration: none;
+            transition: box-shadow .2s ease-in-out;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .file-upload input[type="file"] {
+            font-size: 20px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            opacity: 0;
+            cursor: pointer;
+            height: 100%;
+            width: 100%;
+        }
+        .results {
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 30px;
+            text-align: left;
+        }
+        .results h2 {
+            color: #32cd32;
+        }
+        .results .list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .results .list li {
+            background: #f8f8f8;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Fruit Surprise</h1>
+    <div class="upload-section">
+        <h2>Upload an image of a fruit</h2>
+        <div class="file-upload">
+            <button class="button-62">Choose a File or Drag and Drop Here</button>
+            <input type="file" name="image" accept="image/*" id="image-upload">
+        </div>
+        <img id="image-preview" src="" alt="Image Preview">
+        <input type="submit" class="button-62" value="Upload" id="upload-button">
+    </div>
+
+    <div class="results" id="results" style="display: none;">
+        <h2>Detected Fruits and Possible Desserts</h2>
+        <ul id="fruits-list" class="list"></ul>
+        <h2>Possible Desserts</h2>
+        <ul id="desserts-list" class="list"></ul>
+    </div>
+
+    <script>
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        const uploadButton = document.getElementById('upload-button');
+        const resultsSection = document.getElementById('results');
+        const fruitsList = document.getElementById('fruits-list');
+        const dessertsList = document.getElementById('desserts-list');
+
+        imageUpload.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    imagePreview.setAttribute('src', event.target.result);
+                    imagePreview.style.display = 'block';
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        uploadButton.addEventListener('click', function(event) {
+            event.preventDefault(); 
+
+            const formData = new FormData();
+            formData.append('image', imageUpload.files[0]);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.detected_fruits && data.possible_desserts) {
+                    displayResults(data.detected_fruits, data.possible_desserts);
+                } else {
+                    alert('Failed to detect fruits. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+
+        function displayResults(fruits, desserts) {
+            fruitsList.innerHTML = '';
+            dessertsList.innerHTML = '';
+
+            fruits.forEach(fruit => {
+                const listItem = document.createElement('li');
+                listItem.textContent = fruit;
+                fruitsList.appendChild(listItem);
+            });
+
+            desserts.forEach(dessert => {
+                const listItem = document.createElement('li');
+                listItem.textContent = dessert;
+                dessertsList.appendChild(listItem);
+            });
+
+            resultsSection.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
